@@ -49,27 +49,36 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
     const colors = Object.keys(selectedGems) as RegularGemColor[];
     const uniqueSelected = colors.filter(c => (selectedGems[c] ?? 0) > 0);
 
-    if (current > 0) {
+    // Already have 2 of this color → deselect
+    if (current === 2) {
       setSelectedGems(prev => ({ ...prev, [color]: 0 }));
       return;
     }
 
+    // Already have 1 of this color → try to upgrade to 2, otherwise deselect
+    if (current === 1) {
+      if (uniqueSelected.length === 1 && inBank >= 4) {
+        setSelectedGems({ [color]: 2 });
+      } else {
+        setSelectedGems(prev => ({ ...prev, [color]: 0 }));
+      }
+      return;
+    }
+
+    // Nothing selected yet → select 1
     if (totalSelected === 0) {
       if (inBank >= 1) setSelectedGems({ [color]: 1 });
       return;
     }
 
-    if (totalSelected === 1 && uniqueSelected.length === 1 && uniqueSelected[0] === color) {
-      if (inBank >= 4 && current === 1) setSelectedGems({ [color]: 2 });
-      return;
-    }
-
+    // 1 different color already selected → add this for 2-different
     if (totalSelected === 1 && uniqueSelected[0] !== color && inBank >= 1) {
       setSelectedGems(prev => ({ ...prev, [color]: 1 }));
       return;
     }
 
-    if (totalSelected === 2 && uniqueSelected.length === 2 && inBank >= 1) {
+    // 2 different colors already selected → add this for 3-different
+    if (totalSelected === 2 && uniqueSelected.length === 2 && !uniqueSelected.includes(color) && inBank >= 1) {
       setSelectedGems(prev => ({ ...prev, [color]: 1 }));
     }
   }, [isMyTurn, pendingAction, selectedGems, state.gems, totalSelected]);
