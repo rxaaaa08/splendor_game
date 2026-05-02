@@ -83,7 +83,7 @@ export default function CardDisplay({ card, onBuy, onReserve, compact }: Props) 
         <div className="flex border-t border-black/20">
           {onBuy && (
             <button
-              className="flex-1 text-xs py-1.5 font-bold transition-all active:scale-95 bg-gray-600 hover:bg-gray-500 text-white"
+              className="flex-1 text-xs py-1.5 font-bold transition-all active:scale-95 bg-green-600 hover:bg-green-500 text-white"
               onClick={onBuy}
             >Buy</button>
           )}
