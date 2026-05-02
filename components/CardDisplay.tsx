@@ -46,7 +46,7 @@ export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact
     return (
       <div className={`rounded-lg border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-14 h-16 p-1 flex flex-col justify-start shadow`}>
         <span className={`text-sm font-bold ${BONUS_TEXT[card.bonus]}`}>
-          {card.points > 0 ? card.points : ''}
+          {card.points}
         </span>
       </div>
     );
@@ -59,7 +59,7 @@ export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact
       {/* Top: points only */}
       <div className="px-2 pt-2 pb-1">
         <span className={`text-2xl font-black leading-none ${BONUS_TEXT[card.bonus]}`}>
-          {card.points > 0 ? card.points : ''}
+          {card.points}
         </span>
       </div>
 
