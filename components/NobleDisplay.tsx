@@ -21,7 +21,7 @@ export default function NobleDisplay({ noble }: { noble: Noble }) {
           const n = noble.requires[c] ?? 0;
           if (n === 0) return null;
           return (
-            <div key={c} className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold shadow ${COST_GEM[c]}`}>
+            <div key={c} className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold shadow ${COST_GEM[c]}`}>
               <span>{n}</span>
             </div>
           );
