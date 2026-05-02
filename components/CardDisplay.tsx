@@ -55,7 +55,7 @@ export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact
   const hasCost = GEM_COLORS.some(c => (card.cost[c] ?? 0) > 0);
 
   return (
-    <div className={`rounded-xl border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-24 h-36 flex flex-col shadow-lg overflow-hidden`}>
+    <div className={`rounded-xl border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-24 flex flex-col shadow-lg overflow-hidden`}>
       {/* Top: points only */}
       <div className="px-2 pt-2 pb-1">
         <span className={`text-2xl font-black leading-none ${BONUS_TEXT[card.bonus]}`}>
