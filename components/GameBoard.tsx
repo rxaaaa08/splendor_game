@@ -150,12 +150,21 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-2 md:p-4">
+      {/* YOUR TURN banner */}
+      {isMyTurn && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-green-500 text-white text-center py-2 font-bold text-lg tracking-wide animate-pulse shadow-lg">
+          🎯 YOUR TURN!
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className={`flex items-center justify-between mb-3 ${isMyTurn ? 'mt-10' : ''}`}>
         <h1 className="text-xl font-bold">Splendor</h1>
         <div className="text-sm text-gray-400">
           {state.status === 'last_round' && <span className="text-orange-400 font-semibold mr-2">Final Round!</span>}
-          {isMyTurn ? <span className="text-green-400 font-semibold">Your turn</span> : <span>{currentPlayer?.name}&apos;s turn</span>}
+          {isMyTurn
+            ? <span className="text-green-400 font-bold text-base">✅ Your turn</span>
+            : <span className="text-gray-300">{currentPlayer?.name}&apos;s turn</span>}
         </div>
       </div>
 
