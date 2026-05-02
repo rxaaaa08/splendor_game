@@ -1,27 +1,45 @@
 'use client';
-import type { Card, GemColor, RegularGemColor } from '@/types/game';
+import type { Card, RegularGemColor } from '@/types/game';
 
-const BONUS_BG: Record<RegularGemColor, string> = {
-  white: 'bg-white text-gray-800',
+const BONUS_CARD_BG: Record<RegularGemColor, string> = {
+  white: 'bg-slate-100',
+  blue:  'bg-blue-900',
+  green: 'bg-green-900',
+  red:   'bg-red-900',
+  black: 'bg-gray-950',
+};
+
+const BONUS_GEM: Record<RegularGemColor, string> = {
+  white: 'bg-white border-2 border-gray-300 text-gray-700',
   blue:  'bg-blue-500 text-white',
   green: 'bg-green-500 text-white',
   red:   'bg-red-500 text-white',
-  black: 'bg-gray-800 text-white',
+  black: 'bg-gray-700 text-white',
 };
 
-const COST_COLORS: Record<RegularGemColor, string> = {
-  white: 'bg-white text-gray-800 border border-gray-300',
+const BONUS_TEXT: Record<RegularGemColor, string> = {
+  white: 'text-gray-800',
+  blue:  'text-white',
+  green: 'text-white',
+  red:   'text-white',
+  black: 'text-white',
+};
+
+const COST_GEM: Record<RegularGemColor, string> = {
+  white: 'bg-white border border-gray-300 text-gray-800',
   blue:  'bg-blue-500 text-white',
   green: 'bg-green-500 text-white',
   red:   'bg-red-500 text-white',
-  black: 'bg-gray-800 text-white',
+  black: 'bg-gray-700 text-white',
 };
 
-const TIER_BORDER: Record<1 | 2 | 3, string> = {
+const TIER_ACCENT: Record<1 | 2 | 3, string> = {
   1: 'border-gray-400',
-  2: 'border-yellow-500',
-  3: 'border-orange-500',
+  2: 'border-yellow-400',
+  3: 'border-orange-400',
 };
+
+const GEM_COLORS: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black'];
 
 interface Props {
   card: Card;
@@ -32,44 +50,67 @@ interface Props {
 }
 
 export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact }: Props) {
-  const colors: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black'];
-
   if (compact) {
     return (
-      <div className={`rounded border-2 ${TIER_BORDER[card.tier]} ${BONUS_BG[card.bonus]} p-1 text-xs w-16`}>
-        {card.points > 0 && <div className="font-bold text-sm">{card.points}pt</div>}
-        <div className="text-xs opacity-70">+{card.bonus[0].toUpperCase()}</div>
+      <div className={`rounded-lg border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-14 h-16 p-1 flex flex-col justify-between shadow`}>
+        <span className={`text-sm font-bold ${BONUS_TEXT[card.bonus]}`}>
+          {card.points > 0 ? card.points : ''}
+        </span>
+        <div className={`self-end w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow ${BONUS_GEM[card.bonus]}`}>
+          {card.bonus[0].toUpperCase()}
+        </div>
       </div>
     );
   }
 
+  const hasCost = GEM_COLORS.some(c => (card.cost[c] ?? 0) > 0);
+
   return (
-    <div className={`rounded-lg border-2 ${TIER_BORDER[card.tier]} bg-gray-700 text-white w-28 p-2 flex flex-col gap-1 shadow`}>
-      <div className={`rounded px-1 py-0.5 text-xs font-bold text-center ${BONUS_BG[card.bonus]}`}>
-        {card.points > 0 ? `${card.points} pt` : '0 pt'} · +{card.bonus}
+    <div className={`rounded-xl border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-24 flex flex-col shadow-lg overflow-hidden`}>
+      {/* Top: points + bonus gem */}
+      <div className="flex items-start justify-between px-2 pt-2 pb-1">
+        <span className={`text-2xl font-black leading-none ${BONUS_TEXT[card.bonus]}`}>
+          {card.points > 0 ? card.points : ''}
+        </span>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-md ${BONUS_GEM[card.bonus]}`}>
+          {card.bonus[0].toUpperCase()}
+        </div>
       </div>
-      <div className="flex flex-wrap gap-1 mt-1">
-        {colors.map(c => {
+
+      {/* Spacer */}
+      <div className="flex-1 min-h-[20px]" />
+
+      {/* Cost gems */}
+      <div className={`flex flex-col gap-1 items-end px-2 pb-1 ${!hasCost ? 'opacity-0' : ''}`}>
+        {GEM_COLORS.map(c => {
           const n = card.cost[c] ?? 0;
           if (n === 0) return null;
           return (
-            <span key={c} className={`rounded px-1 text-xs font-bold ${COST_COLORS[c]}`}>{n}{c[0].toUpperCase()}</span>
+            <div key={c} className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-bold shadow ${COST_GEM[c]}`}>
+              <span>{n}</span>
+            </div>
           );
         })}
       </div>
+
+      {/* Action buttons */}
       {(onBuy || onReserve) && (
-        <div className="flex gap-1 mt-1">
+        <div className="flex border-t border-black/20">
           {onBuy && (
             <button
-              className={`flex-1 text-xs rounded py-0.5 font-semibold ${canAfford ? 'bg-green-500 hover:bg-green-400' : 'bg-gray-600 opacity-50 cursor-not-allowed'}`}
+              className={`flex-1 text-xs py-1.5 font-bold transition-all active:scale-95
+                ${canAfford
+                  ? 'bg-green-500 hover:bg-green-400 text-white'
+                  : 'bg-black/30 text-gray-500 cursor-not-allowed'}`}
               onClick={canAfford ? onBuy : undefined}
               disabled={!canAfford}
             >Buy</button>
           )}
           {onReserve && (
-            <button className="flex-1 text-xs rounded py-0.5 font-semibold bg-yellow-600 hover:bg-yellow-500" onClick={onReserve}>
-              Hold
-            </button>
+            <button
+              className="flex-1 text-xs py-1.5 font-bold bg-yellow-600 hover:bg-yellow-500 active:scale-95 text-white transition-all"
+              onClick={onReserve}
+            >Hold</button>
           )}
         </div>
       )}
