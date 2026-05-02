@@ -35,13 +35,12 @@ const GEM_COLORS: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black']
 
 interface Props {
   card: Card;
-  canAfford?: boolean;
   onBuy?: () => void;
   onReserve?: () => void;
   compact?: boolean;
 }
 
-export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact }: Props) {
+export default function CardDisplay({ card, onBuy, onReserve, compact }: Props) {
   if (compact) {
     return (
       <div className={`rounded-lg border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-14 h-16 p-1 flex flex-col justify-start shadow`}>
@@ -84,12 +83,8 @@ export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact
         <div className="flex border-t border-black/20">
           {onBuy && (
             <button
-              className={`flex-1 text-xs py-1.5 font-bold transition-all active:scale-95
-                ${canAfford
-                  ? 'bg-green-500 hover:bg-green-400 text-white'
-                  : 'bg-black/30 text-gray-500 cursor-not-allowed'}`}
-              onClick={canAfford ? onBuy : undefined}
-              disabled={!canAfford}
+              className="flex-1 text-xs py-1.5 font-bold transition-all active:scale-95 bg-gray-600 hover:bg-gray-500 text-white"
+              onClick={onBuy}
             >Buy</button>
           )}
           {onReserve && (

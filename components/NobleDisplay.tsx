@@ -11,7 +11,12 @@ const COST_GEM: Record<RegularGemColor, string> = {
 
 const GEM_COLORS: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black'];
 
-export default function NobleDisplay({ noble }: { noble: Noble }) {
+interface Props {
+  noble: Noble;
+  onClaim?: () => void;
+}
+
+export default function NobleDisplay({ noble, onClaim }: Props) {
   return (
     <div className="flex-shrink-0 rounded-xl border-2 border-yellow-400 bg-yellow-950 w-20 flex flex-col items-center py-2 px-1 gap-1 shadow-lg">
       <span className="text-yellow-300 font-black text-xl leading-none">{noble.points}</span>
@@ -27,6 +32,12 @@ export default function NobleDisplay({ noble }: { noble: Noble }) {
           );
         })}
       </div>
+      {onClaim && (
+        <button
+          className="mt-1 w-full text-xs py-1 rounded-lg bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-gray-900 font-bold transition-all"
+          onClick={onClaim}
+        >Claim</button>
+      )}
     </div>
   );
 }

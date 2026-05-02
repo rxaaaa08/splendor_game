@@ -57,4 +57,5 @@ export type ActionType =
   | { type: 'take_gems'; gems: Partial<Record<RegularGemColor, number>> }
   | { type: 'buy_card'; cardId: string; fromReserved: boolean }
   | { type: 'reserve_card'; cardId: string; fromDeck?: 1 | 2 | 3 }
-  | { type: 'return_gems'; gems: Partial<Record<RegularGemColor, number>> };
+  | { type: 'return_gems'; gems: Partial<Record<RegularGemColor, number>> }
+  | { type: 'claim_noble'; nobleId: string };

@@ -11,10 +11,9 @@ interface Props {
   isActive: boolean;
   isMe: boolean;
   onBuyReserved?: (card: Card) => void;
-  canAfford?: (card: Card) => boolean;
 }
 
-export default function PlayerPanel({ player, isActive, isMe, onBuyReserved, canAfford }: Props) {
+export default function PlayerPanel({ player, isActive, isMe, onBuyReserved }: Props) {
   const bonusByColor = REG_COLORS.reduce((acc, c) => {
     acc[c] = player.cards.filter(card => card.bonus === c).length;
     return acc;
@@ -59,7 +58,6 @@ export default function PlayerPanel({ player, isActive, isMe, onBuyReserved, can
               <CardDisplay
                 key={card.id}
                 card={card}
-                canAfford={canAfford?.(card)}
                 onBuy={isMe && onBuyReserved ? () => onBuyReserved(card) : undefined}
                 compact={!isMe}
               />

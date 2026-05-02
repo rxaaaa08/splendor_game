@@ -290,18 +290,28 @@ export function applyAction(state: GameState, playerId: string, action: ActionTy
     bank = newBank;
   }
 
-  // Check nobles after action (except return_gems which isn't a full turn)
-  if (action.type !== 'return_gems') {
-    const nobleResult = checkNobles(player, nobles);
-    player = nobleResult.player;
-    nobles = nobleResult.nobles;
+  // Handle claim_noble action
+  if (action.type === 'claim_noble') {
+    const nobleIdx = nobles.findIndex(n => n.id === action.nobleId);
+    if (nobleIdx === -1) throw new Error('Noble not available');
+    const noble = nobles[nobleIdx];
+    const bonus = cardBonus(player);
+    const eligible = Object.entries(noble.requires).every(
+      ([color, req]) => bonus[color as RegularGemColor] >= (req ?? 0)
+    );
+    if (!eligible) throw new Error('You do not qualify for this noble');
+    nobles = nobles.filter((_, i) => i !== nobleIdx);
+    const newNobles = [...player.nobles, noble];
+    const newPoints = player.cards.reduce((s, c) => s + c.points, 0) + newNobles.reduce((s, n) => s + n.points, 0);
+    player = { ...player, nobles: newNobles, points: newPoints };
   }
 
   const newPlayers = state.players.map((p, i) => (i === playerIndex ? player : p));
   let newState: GameState = { ...state, players: newPlayers, gems: bank, tiers, nobles };
 
   // Check win condition — triggered if any player hits 15+ points
-  if (action.type !== 'return_gems') {
+  // claim_noble and return_gems don't advance the turn
+  if (action.type !== 'return_gems' && action.type !== 'claim_noble') {
     if (newState.status === 'active' && player.points >= 15) {
       newState = { ...newState, status: 'last_round', lastRoundStarterIndex: (playerIndex + 1) % newState.players.length };
     }

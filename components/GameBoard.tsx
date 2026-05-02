@@ -14,15 +14,6 @@ function cardBonus(cards: Card[]): Record<RegularGemColor, number> {
   return b;
 }
 
-function canAffordCard(player: { gems: GameState['gems']; cards: Card[] }, card: Card): boolean {
-  const bonus = cardBonus(player.cards);
-  let goldNeeded = 0;
-  for (const [color, cost] of Object.entries(card.cost) as [RegularGemColor, number][]) {
-    const effective = Math.max(0, cost - bonus[color] - player.gems[color]);
-    goldNeeded += effective;
-  }
-  return goldNeeded <= player.gems.gold;
-}
 
 interface Props {
   gameId: string;
@@ -189,7 +180,7 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
                   isActive={state.players[state.currentPlayerIndex]?.id === p.id}
                   isMe={p.id === myId}
                   onBuyReserved={isMyTurn ? (card) => { handleBuyCard(card, true); setShowPlayers(false); } : undefined}
-                  canAfford={(card) => canAffordCard(me, card)}
+                 
                 />
               ))}
             </div>
@@ -205,7 +196,19 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
           <div className="mb-3">
             <h2 className="text-xs text-gray-400 mb-1 uppercase tracking-wider px-1">Nobles</h2>
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {state.nobles.map(n => <NobleDisplay key={n.id} noble={n} />)}
+              {state.nobles.map(n => (
+                <NobleDisplay
+                  key={n.id}
+                  noble={n}
+                  onClaim={isMyTurn ? async () => {
+                    setPendingAction(true);
+                    setError('');
+                    try { await onAction({ type: 'claim_noble', nobleId: n.id }); }
+                    catch (e: unknown) { setError((e as Error).message); }
+                    finally { setPendingAction(false); }
+                  } : undefined}
+                />
+              ))}
             </div>
           </div>
 
@@ -245,7 +248,7 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
                       <div key={card.id} className="flex-shrink-0">
                         <CardDisplay
                           card={card}
-                          canAfford={canAffordCard(me, card)}
+                         
                           onBuy={isMyTurn ? () => handleBuyCard(card, false) : undefined}
                           onReserve={isMyTurn && me.reserved.length < 3 ? () => handleReserveCard(card) : undefined}
                         />
@@ -320,7 +323,7 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
                     <div key={card.id} className="flex-shrink-0">
                       <CardDisplay
                         card={card}
-                        canAfford={canAffordCard(me, card)}
+                       
                         onBuy={isMyTurn ? () => handleBuyCard(card, true) : undefined}
                       />
                     </div>
@@ -341,7 +344,7 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
               isActive={state.players[state.currentPlayerIndex]?.id === p.id}
               isMe={p.id === myId}
               onBuyReserved={isMyTurn ? (card) => handleBuyCard(card, true) : undefined}
-              canAfford={(card) => canAffordCard(me, card)}
+             
             />
           ))}
         </div>
