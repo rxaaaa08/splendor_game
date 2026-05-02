@@ -6,7 +6,7 @@ const BONUS_CARD_BG: Record<RegularGemColor, string> = {
   blue:  'bg-blue-900',
   green: 'bg-green-900',
   red:   'bg-red-900',
-  black: 'bg-gray-950',
+  black: 'bg-amber-900',
 };
 
 const BONUS_TEXT: Record<RegularGemColor, string> = {
@@ -22,7 +22,7 @@ const COST_GEM: Record<RegularGemColor, string> = {
   blue:  'bg-blue-500 text-white',
   green: 'bg-green-500 text-white',
   red:   'bg-red-500 text-white',
-  black: 'bg-gray-700 text-white',
+  black: 'bg-amber-800 text-white',
 };
 
 const TIER_ACCENT: Record<1 | 2 | 3, string> = {

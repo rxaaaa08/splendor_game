@@ -6,7 +6,7 @@ const COST_GEM: Record<RegularGemColor, string> = {
   blue:  'bg-blue-500 text-white',
   green: 'bg-green-500 text-white',
   red:   'bg-red-500 text-white',
-  black: 'bg-gray-700 text-white',
+  black: 'bg-amber-800 text-white',
 };
 
 const GEM_COLORS: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black'];

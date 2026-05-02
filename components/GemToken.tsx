@@ -6,7 +6,7 @@ const GEM_STYLES: Record<GemColor, string> = {
   blue:   'bg-blue-500 border-blue-700 text-white',
   green:  'bg-green-500 border-green-700 text-white',
   red:    'bg-red-500 border-red-700 text-white',
-  black:  'bg-gray-800 border-gray-600 text-white',
+  black:  'bg-amber-800 border-amber-900 text-white',
   gold:   'bg-yellow-400 border-yellow-600 text-gray-800',
 };
 
