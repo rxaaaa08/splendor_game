@@ -9,14 +9,6 @@ const BONUS_CARD_BG: Record<RegularGemColor, string> = {
   black: 'bg-gray-950',
 };
 
-const BONUS_GEM: Record<RegularGemColor, string> = {
-  white: 'bg-white border-2 border-gray-300 text-gray-700',
-  blue:  'bg-blue-500 text-white',
-  green: 'bg-green-500 text-white',
-  red:   'bg-red-500 text-white',
-  black: 'bg-gray-700 text-white',
-};
-
 const BONUS_TEXT: Record<RegularGemColor, string> = {
   white: 'text-gray-800',
   blue:  'text-white',
@@ -52,13 +44,10 @@ interface Props {
 export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact }: Props) {
   if (compact) {
     return (
-      <div className={`rounded-lg border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-14 h-16 p-1 flex flex-col justify-between shadow`}>
+      <div className={`rounded-lg border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-14 h-16 p-1 flex flex-col justify-start shadow`}>
         <span className={`text-sm font-bold ${BONUS_TEXT[card.bonus]}`}>
           {card.points > 0 ? card.points : ''}
         </span>
-        <div className={`self-end w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow ${BONUS_GEM[card.bonus]}`}>
-          {card.bonus[0].toUpperCase()}
-        </div>
       </div>
     );
   }
@@ -67,14 +56,11 @@ export default function CardDisplay({ card, canAfford, onBuy, onReserve, compact
 
   return (
     <div className={`rounded-xl border-2 ${TIER_ACCENT[card.tier]} ${BONUS_CARD_BG[card.bonus]} w-24 flex flex-col shadow-lg overflow-hidden`}>
-      {/* Top: points + bonus gem */}
-      <div className="flex items-start justify-between px-2 pt-2 pb-1">
+      {/* Top: points only */}
+      <div className="px-2 pt-2 pb-1">
         <span className={`text-2xl font-black leading-none ${BONUS_TEXT[card.bonus]}`}>
           {card.points > 0 ? card.points : ''}
         </span>
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-md ${BONUS_GEM[card.bonus]}`}>
-          {card.bonus[0].toUpperCase()}
-        </div>
       </div>
 
       {/* Spacer */}
