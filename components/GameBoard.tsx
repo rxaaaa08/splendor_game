@@ -19,10 +19,13 @@ interface Props {
   gameId: string;
   state: GameState;
   myId: string;
+  isHost: boolean;
   onAction: (action: ActionType) => Promise<void>;
+  onRematch: () => void;
+  rematching: boolean;
 }
 
-export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Props) {
+export default function GameBoard({ gameId: _gameId, state, myId, isHost, onAction, onRematch, rematching }: Props) {
   const [selectedGems, setSelectedGems] = useState<Partial<Record<RegularGemColor, number>>>({});
   const [pendingAction, setPendingAction] = useState(false);
   const [error, setError] = useState('');
@@ -119,7 +122,7 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold mb-4">Game Over!</h1>
         <p className="text-2xl text-yellow-300 mb-8">{winner?.name ?? 'Unknown'} wins! 🏆</p>
-        <div className="space-y-3 w-full max-w-xs">
+        <div className="space-y-3 w-full max-w-xs mb-8">
           {[...state.players].sort((a, b) => b.points - a.points).map((p, i) => (
             <div key={p.id} className="flex justify-between bg-gray-800 rounded-lg px-4 py-2 text-lg">
               <span className="text-gray-400">#{i + 1} {p.name}</span>
@@ -127,6 +130,17 @@ export default function GameBoard({ gameId: _gameId, state, myId, onAction }: Pr
             </div>
           ))}
         </div>
+        {isHost ? (
+          <button
+            className="px-8 py-3 rounded-xl text-lg font-bold bg-green-600 hover:bg-green-500 active:scale-95 transition-all disabled:opacity-50"
+            onClick={onRematch}
+            disabled={rematching}
+          >
+            {rematching ? 'Starting rematch...' : '🔄 Rematch'}
+          </button>
+        ) : (
+          <p className="text-gray-500 text-sm">Waiting for the host to start a rematch...</p>
+        )}
       </div>
     );
   }

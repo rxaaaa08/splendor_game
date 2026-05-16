@@ -51,6 +51,7 @@ export interface GameState {
   currentPlayerIndex: number;
   lastRoundStarterIndex?: number;
   winner?: string;
+  rematchGameId?: string;
 }
 
 export type ActionType =

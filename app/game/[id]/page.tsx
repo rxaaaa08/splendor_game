@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback, use } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { GameState, ActionType } from '@/types/game';
 import WaitingRoom from '@/components/WaitingRoom';
@@ -9,37 +10,48 @@ const PLAYER_KEY = (gameId: string) => `splendor_player_${gameId}`;
 
 export default function GamePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: gameId } = use(params);
+  const router = useRouter();
 
   const [state, setState] = useState<GameState | null>(null);
   const [myId, setMyId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [joining, setJoining] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [rematching, setRematching] = useState(false);
   const [error, setError] = useState('');
 
-  // Load state from Supabase
   const loadState = useCallback(async () => {
     const { data } = await supabase.from('games').select('state').eq('id', gameId).single();
     if (data) setState(data.state as GameState);
   }, [gameId]);
 
   useEffect(() => {
-    // Restore player identity from localStorage
     const stored = localStorage.getItem(PLAYER_KEY(gameId));
     if (stored) setMyId(stored);
 
     loadState();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel(`game:${gameId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}` }, payload => {
-        setState((payload.new as { state: GameState }).state);
+        const newState = (payload.new as { state: GameState }).state;
+        setState(newState);
+
+        // Auto-redirect all players to the rematch game
+        if (newState.rematchGameId) {
+          const oldMyId = localStorage.getItem(PLAYER_KEY(gameId));
+          // playerIdMap is stored temporarily to map old → new ID
+          const newMyId = localStorage.getItem(`splendor_rematch_${newState.rematchGameId}_${oldMyId}`);
+          if (newMyId) {
+            localStorage.setItem(PLAYER_KEY(newState.rematchGameId), newMyId);
+          }
+          router.push(`/game/${newState.rematchGameId}`);
+        }
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [gameId, loadState]);
+  }, [gameId, loadState, router]);
 
   const handleJoin = async () => {
     if (!name.trim()) return;
@@ -75,6 +87,34 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
     }
   };
 
+  const handleRematch = async () => {
+    if (!myId) return;
+    setRematching(true);
+    try {
+      const res = await fetch(`/api/game/${gameId}/rematch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: myId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Store new player IDs for all players so redirect works
+      const { newGameId, playerIdMap } = data;
+      for (const [oldId, newId] of Object.entries(playerIdMap as Record<string, string>)) {
+        localStorage.setItem(`splendor_rematch_${newGameId}_${oldId}`, newId);
+      }
+
+      // Store host's own new ID and redirect
+      const myNewId = playerIdMap[myId];
+      if (myNewId) localStorage.setItem(PLAYER_KEY(newGameId), myNewId);
+      router.push(`/game/${newGameId}`);
+    } catch (e: unknown) {
+      setError((e as Error).message);
+      setRematching(false);
+    }
+  };
+
   const handleAction = useCallback(async (action: ActionType) => {
     const res = await fetch(`/api/game/${gameId}/action`, {
       method: 'POST',
@@ -89,7 +129,6 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>
   );
 
-  // Player hasn't joined yet
   if (!myId || !state.players.find(p => p.id === myId)) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
@@ -142,7 +181,10 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
       gameId={gameId}
       state={state}
       myId={myId}
+      isHost={myId === state.hostId}
       onAction={handleAction}
+      onRematch={handleRematch}
+      rematching={rematching}
     />
   );
 }
