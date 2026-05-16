@@ -6,6 +6,14 @@ import CardDisplay from './CardDisplay';
 const GEM_COLORS: GemColor[] = ['white', 'blue', 'green', 'red', 'black', 'gold'];
 const REG_COLORS: RegularGemColor[] = ['white', 'blue', 'green', 'red', 'black'];
 
+const BONUS_PILL: Record<RegularGemColor, string> = {
+  white: 'bg-white text-gray-800 border border-gray-300',
+  blue:  'bg-blue-500 text-white',
+  green: 'bg-green-500 text-white',
+  red:   'bg-red-500 text-white',
+  black: 'bg-amber-800 text-white',
+};
+
 interface Props {
   player: Player;
   isActive: boolean;
@@ -42,7 +50,7 @@ export default function PlayerPanel({ player, isActive, isMe, onBuyReserved }: P
           const n = bonusByColor[c];
           if (n === 0) return null;
           return (
-            <span key={c} className="text-xs bg-gray-600 rounded px-1 py-0.5 text-white">
+            <span key={c} className={`text-xs rounded px-1.5 py-0.5 font-bold ${BONUS_PILL[c]}`}>
               {n}× {c[0].toUpperCase()}
             </span>
           );
