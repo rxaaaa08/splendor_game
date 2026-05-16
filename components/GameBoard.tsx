@@ -316,28 +316,57 @@ export default function GameBoard({ gameId: _gameId, state, myId, isHost, onActi
             )}
           </div>
 
-          {/* My stats bar — always visible at bottom on mobile */}
+          {/* My stats bar — always visible on mobile */}
           <div className="lg:hidden bg-gray-800 rounded-xl p-3 mb-3 border border-gray-700">
             <div className="flex items-center justify-between mb-2">
               <span className="font-bold text-sm truncate">{me.name} (you)</span>
               <span className="text-yellow-300 font-bold">{me.points} pt</span>
             </div>
-            <div className="flex flex-wrap gap-1">
+
+            {/* Gems I hold */}
+            <div className="text-xs text-gray-400 mb-1">Gems</div>
+            <div className="flex flex-wrap gap-1 mb-3">
               {(['white','blue','green','red','black','gold'] as const).map(c => {
                 const n = me.gems[c];
                 if (n === 0) return null;
                 return <GemToken key={c} color={c} count={n} size="sm" />;
               })}
+              {GEM_COLORS.every(c => me.gems[c] === 0) && me.gems.gold === 0 && (
+                <span className="text-xs text-gray-500">None</span>
+              )}
             </div>
+
+            {/* Cards I own (bonus colours) */}
+            <div className="text-xs text-gray-400 mb-1">Cards owned</div>
+            <div className="flex flex-wrap gap-1 mb-3">
+              {(['white','blue','green','red','black'] as const).map(c => {
+                const n = me.cards.filter(card => card.bonus === c).length;
+                if (n === 0) return null;
+                const PILL: Record<string, string> = {
+                  white: 'bg-white text-gray-800 border border-gray-300',
+                  blue: 'bg-blue-500 text-white',
+                  green: 'bg-green-500 text-white',
+                  red: 'bg-red-500 text-white',
+                  black: 'bg-amber-800 text-white',
+                };
+                return (
+                  <span key={c} className={`text-xs rounded px-1.5 py-0.5 font-bold ${PILL[c]}`}>
+                    {n}× {c[0].toUpperCase()}
+                  </span>
+                );
+              })}
+              {me.cards.length === 0 && <span className="text-xs text-gray-500">None</span>}
+            </div>
+
+            {/* Reserved cards */}
             {me.reserved.length > 0 && (
-              <div className="mt-2">
+              <div>
                 <div className="text-xs text-gray-400 mb-1">Reserved ({me.reserved.length}/3)</div>
                 <div className="flex gap-1 overflow-x-auto pb-1">
                   {me.reserved.map(card => (
                     <div key={card.id} className="flex-shrink-0">
                       <CardDisplay
                         card={card}
-                       
                         onBuy={isMyTurn ? () => handleBuyCard(card, true) : undefined}
                       />
                     </div>
